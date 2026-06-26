@@ -104,12 +104,12 @@
         </div>
         <div class="cf-turnstile" data-sitekey="0x4AAAAAADrZ_PlccGPBZBJD" data-theme="light"></div>
         <p class="form-note">We aim to reply within a few working days.</p>
-        <button class="form-submit" type="submit">
+        <div id="form-feedback" style="display:none;padding:14px 18px;border-radius:12px;font-size:14px;font-weight:700;margin-bottom:8px"></div>
+        <button class="form-submit" type="submit" id="form-btn">
           Send message
           <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </button>
       </form>
-      <div id="form-feedback" style="display:none;margin-top:16px;padding:14px 18px;border-radius:12px;font-size:14px;font-weight:700"></div>
 
       <!-- RIGHT: enquiry types -->
       <div class="enquiry-list reveal reveal-delay-1">
@@ -416,24 +416,42 @@ if (sel) {
 }
 </script>
 <script>
-const p = new URLSearchParams(location.search);
-const fb = document.getElementById('form-feedback');
-if (p.get('status') === 'sent') {
-  fb.style.display = 'block';
-  fb.style.background = '#E6EFF1';
-  fb.style.color = '#1A7180';
-  fb.textContent = 'Message sent — we will get back to you within a few working days.';
-} else if (p.get('status') === 'captcha') {
-  fb.style.display = 'block';
-  fb.style.background = '#F6E6E6';
-  fb.style.color = '#B11A1A';
-  fb.textContent = 'Please complete the captcha and try again.';
-} else if (p.get('status') === 'error') {
-  fb.style.display = 'block';
-  fb.style.background = '#F6E6E6';
-  fb.style.color = '#B11A1A';
-  fb.textContent = 'Something went wrong — please try again or email us directly at lauratravaglini@cnr.it';
+const form = document.querySelector('.contact-form');
+const fb   = document.getElementById('form-feedback');
+const btn  = document.getElementById('form-btn');
+
+function showFeedback(ok, msg) {
+  fb.style.display    = 'block';
+  fb.style.background = ok ? '#E6EFF1' : '#F6E6E6';
+  fb.style.color      = ok ? '#1A7180' : '#B11A1A';
+  fb.textContent      = msg;
 }
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  btn.disabled     = true;
+  btn.textContent  = 'Sending…';
+
+  try {
+    const res  = await fetch('/contact', { method: 'POST', body: new FormData(form) });
+    const data = await res.json();
+    if (data.ok) {
+      showFeedback(true, 'Message sent — we will get back to you within a few working days.');
+      form.reset();
+      if (window.turnstile) turnstile.reset();
+    } else if (data.error === 'captcha') {
+      showFeedback(false, 'Please complete the captcha and try again.');
+      if (window.turnstile) turnstile.reset();
+    } else {
+      showFeedback(false, 'Something went wrong — please try again or email us at lauratravaglini@cnr.it');
+    }
+  } catch {
+    showFeedback(false, 'Something went wrong — please try again or email us at lauratravaglini@cnr.it');
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = 'Send message <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+});
 </script>
 </body>
 </html>

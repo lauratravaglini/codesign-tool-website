@@ -1,7 +1,7 @@
 export async function onRequestPost({ request, env }) {
   const formData = await request.formData();
 
-  // 1. Verify Turnstile token
+  // 1. Verify Turnstile
   const token = formData.get('cf-turnstile-response');
   const verify = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
     method: 'POST',
@@ -14,7 +14,7 @@ export async function onRequestPost({ request, env }) {
   });
   const { success } = await verify.json();
   if (!success) {
-    return Response.redirect(new URL('/contact.html?status=captcha', request.url), 303);
+    return json({ ok: false, error: 'captcha' });
   }
 
   // 2. Collect fields
@@ -49,8 +49,14 @@ export async function onRequestPost({ request, env }) {
   });
 
   if (!w3res.ok) {
-    return Response.redirect(new URL('/contact.html?status=error', request.url), 303);
+    return json({ ok: false, error: 'send' });
   }
 
-  return Response.redirect(new URL('/contact.html?status=sent', request.url), 303);
+  return json({ ok: true });
+}
+
+function json(data) {
+  return new Response(JSON.stringify(data), {
+    headers: { 'Content-Type': 'application/json' },
+  });
 }
