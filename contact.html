@@ -436,17 +436,17 @@ form.addEventListener('submit', async (e) => {
     const res  = await fetch('/contact', { method: 'POST', body: new FormData(form) });
     const data = await res.json();
     if (data.ok) {
-      showFeedback(true, 'Message sent — we will get back to you within a few working days.');
+      showFeedback(true, 'Thank you for reaching out! We have received your message and will get back to you as soon as we can.');
       form.reset();
       if (window.turnstile) turnstile.reset();
     } else if (data.error === 'captcha') {
       showFeedback(false, 'Please complete the captcha and try again.');
       if (window.turnstile) turnstile.reset();
     } else {
-      showFeedback(false, 'Something went wrong — please try again or email us at lauratravaglini@cnr.it');
+      showFeedback(false, 'Something went wrong. Please try again or email us directly at lauratravaglini@cnr.it');
     }
   } catch {
-    showFeedback(false, 'Something went wrong — please try again or email us at lauratravaglini@cnr.it');
+    showFeedback(false, 'Something went wrong. Please try again or email us directly at lauratravaglini@cnr.it');
   }
 
   btn.disabled = false;
