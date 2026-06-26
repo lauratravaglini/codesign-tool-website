@@ -1,4 +1,2 @@
 User-agent: *
-Allow: /
-
-Sitemap: https://codesigntool.pages.dev/sitemap.xml
+Disallow: /
