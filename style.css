@@ -691,7 +691,7 @@ body.page-404 a { display:inline-flex; align-items:center; gap:8px; background:v
 body.coming-soon {
   min-height:100vh;
   background:#0e0e14;
-  font-family:system-ui,-apple-system,sans-serif;
+  font-family:"Nunito",system-ui,sans-serif;
   overflow:hidden;
   position:relative;
 }
